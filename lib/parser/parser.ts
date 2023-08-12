@@ -69,6 +69,9 @@ export var digit = satisfy((s) => "0" <= s && s <= "9");
 /// ```
 export function string(s: string): Parser<string> {
   return (input: string) => {
+    if (input.length < s.length) {
+      return [];
+    }
     if (input.startsWith(s)) {
       return [{ result: s, remaining: input.slice(s.length) }];
     }
@@ -114,6 +117,27 @@ export function alt<T, U>(p1: Parser<T>, p2: Parser<U>): Parser<T | U> {
   }
 }
 
+export function alt2<T, U>(p1: Parser<T>, p2: Parser<U>): Parser<T | U> {
+  return (input: string) => {
+    var result: { result: T | U, remaining: string }[] = [];
+    return result.concat(p1(input)).concat(p2(input));
+  }
+}
+
+export function alt3<T, U, V>(p1: Parser<T>, p2: Parser<U>, p3: Parser<V>): Parser<T | U | V> {
+  return (input: string) => {
+    var result: { result: T | U | V, remaining: string }[] = [];
+    return result.concat(p1(input)).concat(p2(input)).concat(p3(input));
+  }
+}
+
+export function alt4<T, U, V, W>(p1: Parser<T>, p2: Parser<U>, p3: Parser<V>, p4: Parser<W>): Parser<T | U | V | W> {
+  return (input: string) => {
+    var result: { result: T | U | V | W, remaining: string }[] = [];
+    return result.concat(p1(input)).concat(p2(input)).concat(p3(input)).concat(p4(input));
+  }
+}
+
 /// monad
 function bind<T, U>(parser: Parser<T>, f: (t: T) => Parser<U>): Parser<U> {
   return (input: string) => {
@@ -140,17 +164,26 @@ export function many<T>(parser: Parser<T>): Parser<T[]> {
 }
 
 /// seq
-export function seq<T, U>(p1: Parser<T>, p2: Parser<U>): Parser<[T, U]> {
+export function seq2<T, U>(p1: Parser<T>, p2: Parser<U>): Parser<[T, U]> {
   return bind(p1, (t) => fmap(p2, (u) => [t, u]));
 }
 
-/// varadic version of seq & alt
-export function seqs<T>(...parsers: Parser<T>[]): Parser<T[]> {
-  if (parsers.length == 0) {
-    return pure([]);
-  }
-  return bind(parsers[0], (t) => fmap(seqs(...parsers.slice(1)), (ts) => [t].concat(ts)));
+export function seq3<T, U, V>(p1: Parser<T>, p2: Parser<U>, p3: Parser<V>): Parser<[T, U, V]> {
+  return bind(p1, (t) => bind(p2, (u) => fmap(p3, (v) => [t, u, v])));
 }
+
+export function seq4<T, U, V, W>(p1: Parser<T>, p2: Parser<U>, p3: Parser<V>, p4: Parser<W>): Parser<[T, U, V, W]> {
+  return bind(p1, (t) => bind(p2, (u) => bind(p3, (v) => fmap(p4, (w) => [t, u, v, w]))));
+}
+
+export function seq5<T, U, V, W, X>(p1: Parser<T>, p2: Parser<U>, p3: Parser<V>, p4: Parser<W>, p5: Parser<X>): Parser<[T, U, V, W, X]> {
+  return bind(p1, (t) => bind(p2, (u) => bind(p3, (v) => bind(p4, (w) => fmap(p5, (x) => [t, u, v, w, x])))));
+}
+
+export function seq6<T, U, V, W, X, Y>(p1: Parser<T>, p2: Parser<U>, p3: Parser<V>, p4: Parser<W>, p5: Parser<X>, p6: Parser<Y>): Parser<[T, U, V, W, X, Y]> {
+  return bind(p1, (t) => bind(p2, (u) => bind(p3, (v) => bind(p4, (w) => bind(p5, (x) => fmap(p6, (y) => [t, u, v, w, x, y]))))));
+}
+
 
 export function alts<T>(...parsers: Parser<T>[]): Parser<T> {
   if (parsers.length == 0) {
@@ -189,3 +222,19 @@ export function best<T>(parser: Parser<T>): Parser<T> {
 export function optional<T>(parser: Parser<T>): Parser<T> {
   return alt(parser, pure([]));
 }
+
+// Y combinator, for self-referential functions
+type M<A extends any[], R> = (f: M<A, R>) => (...a: A) => R
+//                               ^           ^
+//                               |           and returns a function with the same
+//                               |           signature as the inner function of `Y`
+//                               this function takes itself
+
+export const Y = <A extends any[], R>(
+  f: (g: (...a: A) => R) => (...a: A) => R
+): ((...a: A) => R) =>
+  ((m: M<A, R>) =>
+    f((...x) => m(m)(...x))
+  )((m: M<A, R>) =>
+    f((...x) => m(m)(...x))
+  )
