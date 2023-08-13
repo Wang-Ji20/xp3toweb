@@ -8,6 +8,6 @@
 // SPDX-License-Identifier: MIT
 //===----------------------------------------------------------------------===//
 
-import { ParseBool, many } from "../../lib/parser/parser";
+import { ParseBool, many } from "../../lib/parser/functional(abandoned)/parser";
 
 console.log(many(ParseBool)("truefalsefalse"));

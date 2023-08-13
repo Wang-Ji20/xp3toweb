@@ -1,7 +1,7 @@
 //===--- ksToks.ts - Token Definitions Kirikiri Script ---*- TypeScript -*-===//
 // xp3toweb 2023
 //
-// Identification: lib\parser\ksToks.ts
+// Identification: lib\parser\functional(abandoned)\ksToks.ts
 //
 // Author: Ji Wang <jiwangcdi@gmail.com>
 //
@@ -50,7 +50,7 @@ import {
   string,
 } from "./parser";
 
-import { Label, Tag, Text } from "../AST/AST";
+import { Label, Tag, Text } from "../../AST/AST";
 
 let reservedWords = ["@", "*", "[", "]", ";", "|", "\r\n", "\n"];
 

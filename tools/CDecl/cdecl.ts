@@ -37,7 +37,7 @@ import {
   alt4,
   seq4,
   string,
-} from "../../lib/parser/parser";
+} from "../../lib/parser/functional(abandoned)/parser";
 
 type TokenType = "Identifier" | "Star" | "LParen" | "RParen" | "LBkt" | "RBkt";
 type NTermType = "CDecl" | "DirectDcl" | "Pointer" | "Array" | "Func";
