@@ -4,7 +4,8 @@
   },
   "bins": [
     "tools/test-playground/test.js",
-    "tools/CDecl/cdecl.js"
+    "tools/CDecl/cdecl.js",
+    "tools/printAST/print.js"
   ],
   "dependencies": {
     "@types/node": "^20.4.10"
